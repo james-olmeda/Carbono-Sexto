@@ -1,11 +1,17 @@
 import React, { createContext, useState, useEffect, useContext, useMemo } from 'react';
 import { User, UserRole } from '../types';
+import { CredentialResponse } from '@react-oauth/google';
+import jwtDecode from 'jwt-decode';
+import { PublicClientApplication } from '@azure/msal-browser';
 import { USERS } from '../constants';
 
 interface AuthContextType {
   currentUser: User | null;
   users: User[];
   login: (email: string) => Promise<User>;
+  loginWithGoogle: (response: CredentialResponse) => Promise<User>;
+  loginWithMicrosoft: () => Promise<User>;
+  loginWithApple: (data: any) => Promise<User>;
   logout: () => void;
   signup: (name: string, email: string) => Promise<User>;
   inviteUser: (email: string, role: UserRole) => Promise<User>;
@@ -52,6 +58,67 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return user;
     }
     throw new Error('User not found.');
+  };
+
+  const loginWithGoogle = async (response: CredentialResponse): Promise<User> => {
+    if (!response.credential) throw new Error('Google authentication failed');
+    const profile: any = jwtDecode(response.credential);
+    const newUser: User = {
+        id: profile.sub,
+        name: profile.name || profile.email,
+        email: profile.email,
+        avatarUrl: profile.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || profile.email)}`,
+        role: 'Member'
+    };
+    setUsers(prev => {
+        if (prev.some(u => u.id === newUser.id)) return prev;
+        return [...prev, newUser];
+    });
+    setCurrentUser(newUser);
+    return newUser;
+  };
+
+  const msalInstance = useMemo(() => new PublicClientApplication({
+    auth: { clientId: process.env.MICROSOFT_CLIENT_ID || '' }
+  }), []);
+
+  const loginWithMicrosoft = async (): Promise<User> => {
+    const result = await msalInstance.loginPopup({ scopes: ['User.Read'] });
+    const account = result.account;
+    if (!account) throw new Error('Microsoft authentication failed');
+    const newUser: User = {
+        id: account.localAccountId,
+        name: account.name || account.username,
+        email: account.username,
+        avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(account.name || account.username)}`,
+        role: 'Member'
+    };
+    setUsers(prev => {
+        if (prev.some(u => u.id === newUser.id)) return prev;
+        return [...prev, newUser];
+    });
+    setCurrentUser(newUser);
+    return newUser;
+  };
+
+  const loginWithApple = async (data: any): Promise<User> => {
+    const token = data.authorization?.id_token;
+    if (!token) throw new Error('Apple authentication failed');
+    const profile: any = jwtDecode(token);
+    const name = data.user?.name ? `${data.user.name.firstName} ${data.user.name.lastName}` : profile.email;
+    const newUser: User = {
+        id: profile.sub,
+        name,
+        email: profile.email,
+        avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`,
+        role: 'Member'
+    };
+    setUsers(prev => {
+        if (prev.some(u => u.id === newUser.id)) return prev;
+        return [...prev, newUser];
+    });
+    setCurrentUser(newUser);
+    return newUser;
   };
 
   const logout = () => {
@@ -119,6 +186,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     currentUser,
     users,
     login,
+    loginWithGoogle,
+    loginWithMicrosoft,
+    loginWithApple,
     logout,
     signup,
     inviteUser,

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { AppleIcon } from './IconComponents';
+import { AppleIcon, GoogleIcon, MicrosoftIcon } from './IconComponents';
+import { GoogleLogin } from '@react-oauth/google';
+import AppleSignin from 'react-apple-signin-auth';
 
 const AuthScreen = () => {
     const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
-    const { login, signup } = useAuth();
+    const { login, signup, loginWithGoogle, loginWithMicrosoft, loginWithApple } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState(''); // Note: Password is not actually used for login in this mock
     const [name, setName] = useState('');
@@ -27,6 +29,31 @@ const AuthScreen = () => {
             setError(err.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleMicrosoft = async () => {
+        setError('');
+        try {
+            await loginWithMicrosoft();
+        } catch (err: any) {
+            setError(err.message);
+        }
+    };
+
+    const handleGoogle = async (cred: any) => {
+        try {
+            await loginWithGoogle(cred);
+        } catch (err: any) {
+            setError('Google login failed');
+        }
+    };
+
+    const handleApple = async (response: any) => {
+        try {
+            await loginWithApple(response);
+        } catch (err: any) {
+            setError('Apple login failed');
         }
     };
     
@@ -81,7 +108,34 @@ const AuthScreen = () => {
                         {loading ? 'Processing...' : (activeTab === 'signin' ? 'Sign In' : 'Create Account')}
                     </button>
                 </form>
-                 <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-4">For demo: use 'alina.petrova@example.com' to sign in as an Admin.</p>
+                <div className="flex items-center my-4">
+                    <hr className="flex-grow border-gray-300 dark:border-gray-700" />
+                    <span className="px-2 text-xs text-gray-500">OR</span>
+                    <hr className="flex-grow border-gray-300 dark:border-gray-700" />
+                </div>
+                <div className="flex justify-center space-x-3">
+                    <GoogleLogin onSuccess={handleGoogle} onError={() => setError('Google login failed')} useOneTap />
+                    <button onClick={handleMicrosoft} className="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+                        <MicrosoftIcon className="w-5 h-5" />
+                    </button>
+                    <AppleSignin
+                        authOptions={{
+                            clientId: process.env.APPLE_CLIENT_ID || '',
+                            redirectURI: window.location.origin,
+                            scope: 'email name',
+                            usePopup: true
+                        }}
+                        uiType="dark"
+                        onSuccess={handleApple}
+                        onError={() => setError('Apple login failed')}
+                        render={(props: any) => (
+                            <button {...props} className="p-2 rounded-full bg-black text-white">
+                                <AppleIcon className="w-5 h-5" />
+                            </button>
+                        )}
+                    />
+                </div>
+                <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-4">For demo: use 'alina.petrova@example.com' to sign in as an Admin.</p>
             </div>
         </div>
     );
