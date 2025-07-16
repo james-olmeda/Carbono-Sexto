@@ -13,12 +13,13 @@ interface WorkflowCanvasProps {
   onNodeClick: (nodeId: string) => void;
   onConnectStart: (e: React.MouseEvent, nodeId: string) => void;
   onConnectEnd: (e: React.MouseEvent, nodeId: string) => void;
+  onEdgeDoubleClick: (edgeId: string) => void;
   canvasRef: React.RefObject<HTMLDivElement>;
   connectionLine?: { sourceId: string, x2: number, y2: number } | null;
   isConnecting: boolean;
 }
 
-const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ nodes, edges, onDragOver, onDrop, onNodeDragStart, onNodeClick, onConnectStart, onConnectEnd, canvasRef, connectionLine, isConnecting }) => {
+const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ nodes, edges, onDragOver, onDrop, onNodeDragStart, onNodeClick, onConnectStart, onConnectEnd, onEdgeDoubleClick, canvasRef, connectionLine, isConnecting }) => {
   const { users } = useAuth();
   
   const getNodeUser = (node: BuilderNode) => {
@@ -98,7 +99,19 @@ const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ nodes, edges, onDragOve
           const x2 = targetCenter.x - ux * (targetRadius + arrowPadding);
           const y2 = targetCenter.y - uy * (targetRadius + arrowPadding);
 
-          return <line key={edge.id} x1={x1} y1={y1} x2={x2} y2={y2} strokeWidth="2" className="stroke-gray-400 dark:stroke-gray-500" markerEnd="url(#arrow)" />;
+          const midX = (x1 + x2) / 2;
+          const midY = (y1 + y2) / 2;
+
+          return (
+            <g key={edge.id} onDoubleClick={() => onEdgeDoubleClick(edge.id)} className="cursor-pointer">
+              <line x1={x1} y1={y1} x2={x2} y2={y2} strokeWidth="2" className="stroke-gray-400 dark:stroke-gray-500" markerEnd="url(#arrow)" />
+              {edge.label && (
+                <text x={midX} y={midY - 4} textAnchor="middle" className="fill-gray-600 dark:fill-gray-300 text-xs">
+                  {edge.label}
+                </text>
+              )}
+            </g>
+          );
         })}
         {/* Connection Line */}
         {connectionLine && (() => {

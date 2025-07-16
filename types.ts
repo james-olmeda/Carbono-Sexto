@@ -90,6 +90,7 @@ export interface BuilderNode {
   id: string;
   type: BuilderNodeType;
   label: string;
+  description?: string;
   x: number;
   y: number;
   assigneeId?: string;
@@ -100,6 +101,7 @@ export interface BuilderEdge {
     id: string;
     source: string;
     target: string;
+    label?: string;
 }
 
 export interface Workflow {

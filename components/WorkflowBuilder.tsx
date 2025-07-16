@@ -42,6 +42,7 @@ const WorkflowBuilder = ({ workflow, onWorkflowChange }: WorkflowBuilderProps) =
                 id: `node-${Date.now()}`,
                 type,
                 label: `${type.charAt(0).toUpperCase()}${type.slice(1).toLowerCase()}`,
+                description: '',
                 x: event.clientX - canvasBounds.left - 48,
                 y: event.clientY - canvasBounds.top - 48,
                 ...(type === 'Task' && { form: { mode: 'FILL', fields: [] } })
@@ -87,10 +88,12 @@ const WorkflowBuilder = ({ workflow, onWorkflowChange }: WorkflowBuilderProps) =
                 edge => (edge.source === connectingFrom && edge.target === targetNodeId)
             );
             if (!edgeExists) {
+                const label = window.prompt('Connection label (optional)') || '';
                 const newEdge: BuilderEdge = {
                     id: `edge-${connectingFrom}-${targetNodeId}-${Date.now()}`,
                     source: connectingFrom,
                     target: targetNodeId,
+                    label
                 };
                 onWorkflowChange({ nodes: workflow.nodes, edges: [...workflow.edges, newEdge] });
             }
@@ -113,6 +116,15 @@ const WorkflowBuilder = ({ workflow, onWorkflowChange }: WorkflowBuilderProps) =
             setNodeToEdit(node);
             setIsModalOpen(true);
         }
+    };
+
+    const handleEdgeDoubleClick = (edgeId: string) => {
+        const edge = workflow.edges.find(e => e.id === edgeId);
+        if (!edge) return;
+        const label = window.prompt('Edit connection label', edge.label || '') ?? edge.label;
+        if (label === null) return;
+        const newEdges = workflow.edges.map(e => e.id === edgeId ? { ...e, label } : e);
+        onWorkflowChange({ nodes: workflow.nodes, edges: newEdges });
     };
     
     const handleMouseMove = (e: React.MouseEvent) => {
@@ -167,6 +179,7 @@ const WorkflowBuilder = ({ workflow, onWorkflowChange }: WorkflowBuilderProps) =
                 onNodeClick={handleNodeClick}
                 onConnectStart={handleConnectStart}
                 onConnectEnd={handleConnectEnd}
+                onEdgeDoubleClick={handleEdgeDoubleClick}
                 canvasRef={canvasRef}
                 connectionLine={connectionLine}
                 isConnecting={!!connectingFrom}
@@ -196,12 +209,13 @@ interface NodeEditModalProps {
 const NodeEditModal: React.FC<NodeEditModalProps> = ({ node, allWorkflowFields, onClose, onSave, onDelete }) => {
     const { users } = useAuth();
     const [label, setLabel] = useState(node.label);
+    const [description, setDescription] = useState(node.description || '');
     const [assigneeId, setAssigneeId] = useState(node.assigneeId);
     const [form, setForm] = useState<NodeForm | undefined>(node.form ? JSON.parse(JSON.stringify(node.form)) : undefined);
     
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSave({ ...node, label, assigneeId, form });
+        onSave({ ...node, label, description, assigneeId, form });
     };
 
     const handleDelete = () => {
@@ -232,6 +246,10 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ node, allWorkflowFields, 
                     <div>
                         <label htmlFor="label" className={labelClass}>Node Label</label>
                         <input type="text" id="label" value={label} onChange={e => setLabel(e.target.value)} className={inputClass} required />
+                    </div>
+                    <div>
+                        <label htmlFor="desc" className={labelClass}>Description</label>
+                        <textarea id="desc" value={description} onChange={e => setDescription(e.target.value)} className={`${inputClass} h-20`} />
                     </div>
 
                     {node.type === 'Task' && (
