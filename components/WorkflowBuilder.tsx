@@ -158,10 +158,10 @@ const WorkflowBuilder = ({ workflow, onWorkflowChange }: WorkflowBuilderProps) =
     return (
         <div className="flex h-full w-full bg-white dark:bg-black/20 rounded-[22px] border border-gray-200 dark:border-white/10 backdrop-blur-sm overflow-hidden" onMouseMove={handleMouseMove} onMouseUp={handleMouseUpOnCanvas}>
             <WorkflowPalette />
-            <WorkflowCanvas 
-                nodes={workflow.nodes} 
+            <WorkflowCanvas
+                nodes={workflow.nodes}
                 edges={workflow.edges}
-                onDragOver={onDragOver} 
+                onDragOver={onDragOver}
                 onDrop={onDrop}
                 onNodeDragStart={onNodeDragStart}
                 onNodeClick={handleNodeClick}
@@ -169,6 +169,7 @@ const WorkflowBuilder = ({ workflow, onWorkflowChange }: WorkflowBuilderProps) =
                 onConnectEnd={handleConnectEnd}
                 canvasRef={canvasRef}
                 connectionLine={connectionLine}
+                isConnecting={!!connectingFrom}
             />
              {isModalOpen && nodeToEdit && (
                 <NodeEditModal 
