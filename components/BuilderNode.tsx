@@ -10,6 +10,7 @@ interface BuilderNodeProps {
   onConnectStart: (e: React.MouseEvent, nodeId: string) => void;
   onConnectEnd: (e: React.MouseEvent, nodeId: string) => void;
   user?: User | null;
+  isConnecting: boolean;
 }
 
 const nodeStyles: { [key in BuilderNodeType]: string } = {
@@ -30,7 +31,7 @@ const nodeIcons: { [key in BuilderNodeType]: React.ReactNode } = {
     Message: <EnvelopeIcon className="w-8 h-8" />,
 };
 
-const BuilderNodeComponent: React.FC<BuilderNodeProps> = ({ node, onDragStart, onClick, onConnectStart, onConnectEnd, user }) => {
+const BuilderNodeComponent: React.FC<BuilderNodeProps> = ({ node, onDragStart, onClick, onConnectStart, onConnectEnd, user, isConnecting }) => {
   const shapeClass = node.type === 'Gateway' 
     ? 'w-24 h-24 transform rotate-45' 
     : 'w-24 h-24 rounded-full';
@@ -40,7 +41,7 @@ const BuilderNodeComponent: React.FC<BuilderNodeProps> = ({ node, onDragStart, o
   return (
     <div
       id={node.id}
-      draggable
+      draggable={!isConnecting}
       onDragStart={(e) => onDragStart(e, node.id)}
       className="absolute flex flex-col items-center group"
       style={{ left: `${node.x}px`, top: `${node.y}px` }}

@@ -15,9 +15,10 @@ interface WorkflowCanvasProps {
   onConnectEnd: (e: React.MouseEvent, nodeId: string) => void;
   canvasRef: React.RefObject<HTMLDivElement>;
   connectionLine?: { sourceId: string, x2: number, y2: number } | null;
+  isConnecting: boolean;
 }
 
-const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ nodes, edges, onDragOver, onDrop, onNodeDragStart, onNodeClick, onConnectStart, onConnectEnd, canvasRef, connectionLine }) => {
+const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ nodes, edges, onDragOver, onDrop, onNodeDragStart, onNodeClick, onConnectStart, onConnectEnd, canvasRef, connectionLine, isConnecting }) => {
   const { users } = useAuth();
   
   const getNodeUser = (node: BuilderNode) => {
@@ -126,14 +127,15 @@ const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ nodes, edges, onDragOve
       {/* Nodes */}
       <div className="relative z-10 w-full h-full">
         {nodes.map((node) => (
-          <BuilderNodeComponent 
-            key={node.id} 
-            node={node} 
-            onDragStart={onNodeDragStart} 
+          <BuilderNodeComponent
+            key={node.id}
+            node={node}
+            onDragStart={onNodeDragStart}
             onClick={onNodeClick}
             onConnectStart={onConnectStart}
             onConnectEnd={onConnectEnd}
             user={getNodeUser(node)}
+            isConnecting={isConnecting}
           />
         ))}
       </div>
