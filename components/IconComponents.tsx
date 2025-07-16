@@ -89,6 +89,25 @@ export const AppleIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
+export const GoogleIcon = ({ className }: { className?: string }) => (
+    <svg className={className || "w-5 h-5"} viewBox="0 0 48 48">
+        <path fill="#EA4335" d="M24 9.5c3.5 0 6.4 1.2 8.5 3.2l6.3-6.3C34.8 2.5 29.7 0 24 0 14.6 0 6.6 5.8 2.8 14.2l7.3 5.7C12.7 13.3 17.9 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.6c-.5 2.6-2 4.8-4.2 6.2v5.2h6.8c4-3.6 6.3-8.9 6.3-15.9z"/>
+        <path fill="#FBBC05" d="M10.1 28.9c-1-2-1.6-4.1-1.6-6.4s.6-4.4 1.6-6.4V10H3.4C1.2 13.7 0 18.1 0 22.5s1.2 8.8 3.4 12.5l6.7-6.1z"/>
+        <path fill="#34A853" d="M24 44c5.7 0 10.5-1.9 14-5.1l-6.8-5.2c-2 1.4-4.5 2.2-7.2 2.2-6.1 0-11.3-4.1-13.2-9.6l-7.3 5.7C6.6 42.2 14.6 48 24 48z"/>
+        <path fill="none" d="M0 0h48v48H0z"/>
+    </svg>
+);
+
+export const MicrosoftIcon = ({ className }: { className?: string }) => (
+    <svg className={className || "w-5 h-5"} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M2 2h9v9H2V2z" fill="#F25022"/>
+        <path d="M13 2h9v9h-9V2z" fill="#7FBA00"/>
+        <path d="M2 13h9v9H2v-9z" fill="#00A4EF"/>
+        <path d="M13 13h9v9h-9v-9z" fill="#FFB900"/>
+    </svg>
+);
+
 export const PhotosIcon = ({ className }: { className?: string }) => (
     <svg className={className || "w-10 h-10"} viewBox="0 0 100 100">
         <g transform="rotate(45 50 50)">

@@ -10,6 +10,7 @@ The project uses a modern frontend setup that requires a local development serve
 
 1.  **Node.js**: Ensure you have Node.js and `npm` (Node Package Manager) installed. You can download it from [nodejs.org](https://nodejs.org/).
 2.  **Gemini API Key**: You need a valid API key for the Google Gemini API. You can obtain one from [Google AI Studio](https://aistudio.google.com/app/apikey).
+3.  **OAuth Client IDs**: For Google, Microsoft, and Apple SSO you must create OAuth client IDs with each provider.
 
 ### Step-by-Step Guide
 
@@ -73,10 +74,13 @@ export default defineConfig(({ mode }) => {
 Create a secure file to store your API key.
 
 1.  In the root of your project folder, create a new file named `.env`.
-2.  Add your Gemini API key to this file. This file is typically ignored by version control systems like Git, which keeps your key private.
+2.  Add your Gemini API key and OAuth client IDs to this file. This file is typically ignored by version control systems like Git, which keeps your keys private.
 
     ```
     API_KEY="YOUR_GEMINI_API_KEY_GOES_HERE"
+    GOOGLE_CLIENT_ID="YOUR_GOOGLE_CLIENT_ID"
+    MICROSOFT_CLIENT_ID="YOUR_MICROSOFT_CLIENT_ID"
+    APPLE_CLIENT_ID="YOUR_APPLE_CLIENT_ID"
     ```
 
     Replace `YOUR_GEMINI_API_KEY_GOES_HERE` with your actual key.
